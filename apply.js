@@ -5,7 +5,7 @@
   var MAX_MB = CONFIG.maxResumeMB || 10;
   var STORE_KEY = 'july-redteam-application-v1';
   var QUESTION_COUNT = 6;
-  var SAMPLE_APP_URL = 'https://app.gojuly.ai/?invite_code=PGHFQGWA';
+  var SAMPLE_APP_URL = 'https://app.gojuly.ai/learning/8677bb41-e677-4995-8cc0-9b5d38d934e0?type=objective&id=6d9bf3bd-14e7-48f6-967a-daa0494e3c6f&collection=f45878f9-fc2a-4e91-ab98-22a4efc281fc';
   var FINAL_LABEL = 'Save application & start sample submission';
   var OUT_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>';
 
