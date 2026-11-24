@@ -14,7 +14,8 @@
   var RESUME_EXT = ['pdf', 'doc', 'docx'];
 
   var form = document.getElementById('form');
-  var card = document.getElementById('card');
+  var panel = document.getElementById('application');
+  var progress = document.getElementById('progress');
   var steps = Array.prototype.slice.call(form.querySelectorAll('[data-step]'));
   var nav = document.getElementById('nav');
   var backBtn = document.getElementById('backBtn');
@@ -49,14 +50,14 @@
   function stepName(i) { return steps[i].getAttribute('data-step'); }
   function isQuestion(i) { var n = stepName(i); return n !== 'welcome' && n !== 'done'; }
 
-  function show(i, dir) {
+  function show(i, dir, focus) {
     steps.forEach(function (s, k) { s.hidden = k !== i; s.classList.remove('is-entering', 'back'); });
     var step = steps[i];
     void step.offsetWidth;
     step.classList.add('is-entering');
     if (dir === 'back') step.classList.add('back');
     current = i;
-    card.setAttribute('data-at', stepName(i));
+    progress.hidden = !isQuestion(i);
 
     var q = isQuestion(i);
     nav.hidden = !q;
@@ -71,9 +72,13 @@
         : 'Press <kbd>Enter ↵</kbd>';
       backBtn.hidden = false;
     }
-    var heading = step.querySelector('.q-title');
-    if (heading) heading.focus({ preventScroll: true });
-    if (window.innerWidth < 640) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (focus !== false) {
+      var heading = step.querySelector('.q-title');
+      if (heading) heading.focus({ preventScroll: true });
+      // Keep the top of the question in view after moving between steps.
+      var top = panel.getBoundingClientRect().top;
+      if (top < 0) window.scrollTo({ top: window.scrollY + top - 80, behavior: 'smooth' });
+    }
     if (q) announce.textContent = 'Question ' + i + ' of ' + QUESTION_COUNT;
     save();
   }
@@ -184,6 +189,7 @@
 
   // ---------- Keyboard ----------
   document.addEventListener('keydown', function (e) {
+    if (panel.hidden) return;
     var t = e.target;
     var tag = t.tagName;
     var typing = tag === 'TEXTAREA' || (tag === 'INPUT' && /^(text|email|tel|search)$/.test(t.type));
@@ -288,9 +294,7 @@
     nextBtn.disabled = on;
     backBtn.disabled = on;
     nextLabel.textContent = on ? 'Submitting…' : 'Submit application';
-    nextDisc.innerHTML = on
-      ? '<span class="spinner" aria-hidden="true"></span>'
-      : '<svg class="arrow to-right" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg>';
+    nextDisc.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span>' : '';
   }
 
   function finish() {
@@ -353,5 +357,11 @@
   }
 
   // ---------- Start ----------
-  show(restore(), 'fwd');
+  show(restore(), 'fwd', false);
+  // Opening the Application tab puts focus on the current question.
+  document.addEventListener('tabchange', function (e) {
+    if (e.detail !== 'application') return;
+    var heading = steps[current].querySelector('.q-title');
+    if (heading) heading.focus({ preventScroll: true });
+  });
 })();

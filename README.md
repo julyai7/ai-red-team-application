@@ -3,9 +3,11 @@
 Application flow for July AI's AI Red Teaming contributor role, styled to match
 [gojuly.ai](https://www.gojuly.ai/).
 
-- **`index.html`**: the job description, with "Apply now" calls to action.
-- **`apply.html`**: the application, one question per screen. It asks the same
+- **`index.html`**: a plain job post laid out like an Ashby listing: title,
+  details sidebar, and **Overview / Application** tabs. The Application tab
+  (`index.html#application`) holds the form, one question per step, with the same
   7 questions as the [original Typeform](https://form.typeform.com/to/sxEbJwG6).
+- **`apply.html`**: redirects old links to `index.html#application`.
 - **`apps-script/Code.gs`**: the backend. A Google Apps Script web app that
   saves each resume to a Drive folder and adds a row to a Google Sheet.
 
