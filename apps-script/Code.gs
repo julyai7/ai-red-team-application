@@ -19,7 +19,7 @@ const ALLOWED_EXT = ['pdf', 'doc', 'docx'];
 const HEADERS = [
   'Submitted at', 'First name', 'Last name', 'Email', 'Phone',
   'How did you hear about July AI?', 'Authorized to work in the U.S.?',
-  'Acknowledged sample is part of application', 'Status',
+  'Acknowledged sample is part of application', 'Confirmed sample steps', 'Status',
   'Resume', 'Resume file name',
 ];
 
@@ -34,7 +34,7 @@ function doPost(e) {
       if (!d[k] || !String(d[k]).trim()) return json_({ ok: false, error: 'Missing ' + k });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.email)) return json_({ ok: false, error: 'Invalid email' });
-    if (!d.ackApplicationProcess) return json_({ ok: false, error: 'Acknowledgement required' });
+    if (!d.ackApplicationProcess || !d.ackSampleSteps) return json_({ ok: false, error: 'Acknowledgements required' });
     if (!d.resume || !d.resume.data) return json_({ ok: false, error: 'Resume required' });
 
     const ext = String(d.resume.name || '').split('.').pop().toLowerCase();
@@ -62,6 +62,7 @@ function doPost(e) {
       d.firstName, d.lastName, d.email, d.phone || '',
       d.source, d.workAuth,
       d.ackApplicationProcess ? 'Yes' : 'No',
+      d.ackSampleSteps ? 'Yes' : 'No',
       d.status || 'Sample pending',
       file.getUrl(), d.resume.name,
     ].map(cell));

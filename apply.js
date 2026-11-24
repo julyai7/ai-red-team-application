@@ -328,6 +328,7 @@
         source: f.source.value,
         workAuth: f.workAuth.value === 'Other' ? 'Other: ' + f.workAuthOther.value.trim() : f.workAuth.value,
         ackApplicationProcess: f.ackProcess.checked,
+        ackSampleSteps: f.ackSteps.checked,
         status: 'Sample pending',
         resume: { name: resumeFile.name, type: resumeFile.type || 'application/octet-stream', size: resumeFile.size, data: b64 },
         submittedAt: new Date().toISOString(),
