@@ -182,6 +182,7 @@ form { margin: 0; }
 
 .intro p { margin-top: 8px; color: var(--body); font-size: 16.5px; line-height: 1.65; max-width: 60ch; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chips-row2 { margin-top: 8px; }
 .chip {
   display: inline-flex; align-items: center; height: 28px; padding: 0 12px;
   border-radius: 999px; background: rgba(16, 19, 31, .05);
