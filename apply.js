@@ -9,7 +9,7 @@
   var SOURCES = [
     'Referral', '80,000 Hours', 'Reddit', 'LinkedIn', 'Discord', 'ilovecreatives',
     'Web Forum', 'Make Writing Your Job', 'Substack', 'Fiverr', 'FreeUp', 'Freelancer',
-    'Other Newsletter', 'Other', 'ProBlogger', 'Flexjobs'
+    'Other Newsletter', 'ProBlogger', 'Flexjobs', 'Other'
   ];
   var RESUME_EXT = ['pdf', 'doc', 'docx'];
 
