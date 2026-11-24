@@ -282,6 +282,11 @@ form { margin: 0; }
   padding: 8px 14px; border-radius: 999px; background: #fff5e0; color: #7a4b00; font-size: 14.5px;
 }
 .status-row strong { font-weight: 600; }
+/* Saved screen: even spacing around the status badge (the list's bottom margin
+   used to stack on top of the badge's own, leaving a gap above and none below). */
+.intro .how { margin-bottom: 0; }
+.intro .how + .status-row { margin-top: 22px; }
+.intro .status-row + p { margin-top: 16px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #e7a23a; box-shadow: 0 0 0 3px rgba(231, 162, 58, .25); }
 a.btn { text-decoration: none; }
 
