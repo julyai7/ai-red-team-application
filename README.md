@@ -5,8 +5,9 @@ Application flow for July AI's AI Red Teaming contributor role, styled to match
 
 - **`index.html`**: a plain job post laid out like an Ashby listing: title,
   details sidebar, and **Overview / Application** tabs. The Application tab
-  (`index.html#application`) holds the form, one question per step, with the same
-  7 questions as the [original Typeform](https://form.typeform.com/to/sxEbJwG6).
+  (`index.html#application`) holds the form, one question per step, with the
+  questions from the [original Typeform](https://form.typeform.com/to/sxEbJwG6),
+  minus its optional "additional details" question.
 - **`apply.html`**: redirects old links to `index.html#application`.
 - **`apps-script/Code.gs`**: the backend. A Google Apps Script web app that
   saves each resume to a Drive folder and adds a row to a Google Sheet.

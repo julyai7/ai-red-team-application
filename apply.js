@@ -4,7 +4,7 @@
   var CONFIG = window.APP_CONFIG || {};
   var MAX_MB = CONFIG.maxResumeMB || 10;
   var STORE_KEY = 'july-redteam-application-v1';
-  var QUESTION_COUNT = 7;
+  var QUESTION_COUNT = 6;
 
   var SOURCES = [
     'Referral', '80,000 Hours', 'Reddit', 'LinkedIn', 'Discord', 'ilovecreatives',
@@ -176,6 +176,7 @@
     }
     save();
     // Single-choice questions move on by themselves, like the original form.
+    if (current === QUESTION_COUNT) return;
     if (t.type === 'radio' || t.type === 'checkbox' && t.checked) {
       clearTimeout(advanceTimer);
       var at = current;
@@ -245,7 +246,7 @@
   drop.addEventListener('drop', function (e) { if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
 
   // ---------- Save progress in this browser (not the resume) ----------
-  var SAVED_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'source', 'workAuth', 'workAuthOther', 'details'];
+  var SAVED_FIELDS = ['firstName', 'lastName', 'email', 'phone', 'source', 'workAuth', 'workAuthOther'];
   function save() {
     try {
       var data = { step: stepName(current) === 'done' ? 0 : current };
@@ -316,7 +317,6 @@
         workAuth: f.workAuth.value === 'Other' ? 'Other: ' + f.workAuthOther.value.trim() : f.workAuth.value,
         ackApplicationProcess: f.ackProcess.checked,
         ackSampleSubmitted: f.ackSample.checked,
-        details: f.details.value.trim(),
         resume: { name: resumeFile.name, type: resumeFile.type || 'application/octet-stream', size: resumeFile.size, data: b64 },
         submittedAt: new Date().toISOString(),
         page: location.href

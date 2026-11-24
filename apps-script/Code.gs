@@ -20,7 +20,7 @@ const HEADERS = [
   'Submitted at', 'First name', 'Last name', 'Email', 'Phone',
   'How did you hear about July AI?', 'Authorized to work in the U.S.?',
   'Acknowledged sample is part of application', 'Completed sample submission',
-  'Additional details', 'Resume', 'Resume file name',
+  'Resume', 'Resume file name',
 ];
 
 function doPost(e) {
@@ -63,7 +63,6 @@ function doPost(e) {
       d.source, d.workAuth,
       d.ackApplicationProcess ? 'Yes' : 'No',
       d.ackSampleSubmitted ? 'Yes' : 'No',
-      String(d.details || '').slice(0, 5000),
       file.getUrl(), d.resume.name,
     ].map(cell));
 
