@@ -169,7 +169,7 @@ button { font: inherit; }
 form { margin: 0; }
 .step[hidden] { display: none; }
 .step.is-entering { animation: step-in .45s var(--silk); }
-.step.is-entering.back { animation-name: step-in-back; }
+.step.is-entering.is-back { animation-name: step-in-back; }
 @keyframes step-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes step-in-back { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 
@@ -196,6 +196,7 @@ form { margin: 0; }
 
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field + .field, .row + .field { margin-top: 18px; }
+.row > .field + .field { margin-top: 0; }
 .lbl { display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 6px; }
 .lbl .opt { font-weight: 400; color: var(--muted); }
 .input, .textarea {
@@ -312,8 +313,9 @@ form { margin: 0; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 44px; padding: 0 22px; border-radius: 999px;
-  border: 1px solid var(--ink); background: var(--ink); color: var(--bg);
+  border: 1px solid var(--link); background: var(--link); color: #fff;
   font-size: 15px; font-weight: 600; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .18), 0 8px 20px -12px rgba(30, 79, 216, .6);
   transition: background-color .4s var(--silk), border-color .4s var(--silk);
 }
 .btn:hover { background: var(--accent); border-color: var(--accent); }
@@ -328,7 +330,7 @@ form { margin: 0; }
 .btn-quiet:hover { color: var(--ink); background: rgba(16, 19, 31, .05); }
 .btn-quiet[hidden] { display: none; }
 .btn-link { color: var(--link); text-decoration: none; font-weight: 600; font-size: 15px; }
-.spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255, 254, 250, .35); border-top-color: var(--bg); animation: spin .8s linear infinite; }
+.spinner { width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .notice { margin-top: 28px; padding: 11px 14px; border-radius: 8px; background: #fff5e0; color: #7a4b00; font-size: 13.5px; line-height: 1.5; }

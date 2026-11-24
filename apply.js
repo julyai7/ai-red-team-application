@@ -22,7 +22,6 @@
   var nextBtn = document.getElementById('nextBtn');
   var nextLabel = document.getElementById('nextLabel');
   var nextDisc = document.getElementById('nextDisc');
-  var enterHint = document.getElementById('enterHint');
   var stepError = document.getElementById('stepError');
   var progressFill = document.getElementById('progressFill');
   var progressLabel = document.getElementById('progressLabel');
@@ -51,11 +50,11 @@
   function isQuestion(i) { var n = stepName(i); return n !== 'welcome' && n !== 'done'; }
 
   function show(i, dir, focus) {
-    steps.forEach(function (s, k) { s.hidden = k !== i; s.classList.remove('is-entering', 'back'); });
+    steps.forEach(function (s, k) { s.hidden = k !== i; s.classList.remove('is-entering', 'is-back'); });
     var step = steps[i];
     void step.offsetWidth;
     step.classList.add('is-entering');
-    if (dir === 'back') step.classList.add('back');
+    if (dir === 'back') step.classList.add('is-back');
     current = i;
     progress.hidden = !isQuestion(i);
 
@@ -67,9 +66,6 @@
       progressLabel.textContent = i + ' of ' + QUESTION_COUNT;
       var last = i === QUESTION_COUNT;
       nextLabel.textContent = last ? 'Submit application' : 'Continue';
-      enterHint.innerHTML = stepName(i) === 'details'
-        ? 'Press <kbd>⌘ Enter ↵</kbd>'
-        : 'Press <kbd>Enter ↵</kbd>';
       backBtn.hidden = false;
     }
     if (focus !== false) {
