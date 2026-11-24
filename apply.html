@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apply · AI Red Teaming — July AI</title>
+  <meta name="description" content="Apply to July AI's Red Team contributor program.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Young+Serif&family=Archivo:wght@300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    html, body { min-height: 100%; }
+    body { background: #1d3fae url(media/marble.jpg) center / cover fixed no-repeat; }
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(12,22,64,.22), rgba(12,22,64,.12));
+    }
+    .site-header { position: absolute; }
+    .stage {
+      position: relative;
+      min-height: 100svh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 112px 16px 48px;
+    }
+
+    .card {
+      width: 100%; max-width: 680px;
+      background: var(--card);
+      border-radius: var(--radius-card);
+      box-shadow: var(--elev-2), 0 40px 80px -40px rgba(10,14,26,.45);
+      border: 1px solid rgba(255,254,250,.6);
+      overflow: hidden;
+    }
+
+    .progress {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 28px 0;
+    }
+    .progress-track { flex: 1; height: 4px; border-radius: 4px; background: rgba(29,63,174,.09); overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; background: var(--marble); border-radius: 4px; transition: width .6s var(--silk); }
+    .progress-label { font-size: 12.5px; font-weight: 600; color: var(--muted); letter-spacing: .04em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .card[data-at="welcome"] .progress, .card[data-at="done"] .progress { display: none; }
+
+    form { margin: 0; }
+    .step { padding: 30px 40px 36px; }
+    .step[hidden] { display: none; }
+    .step.is-entering { animation: step-in .55s var(--silk); }
+    .step.is-entering.back { animation-name: step-in-back; }
+    @keyframes step-in { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes step-in-back { from { opacity: 0; transform: translateY(-14px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+
+    .q-num { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--marble); letter-spacing: .02em; }
+    .q-num .req { color: var(--muted); font-weight: 500; }
+    .q-title {
+      margin-top: 10px;
+      font: 400 clamp(24px, 3.2vw, 30px)/1.18 var(--font-serif); letter-spacing: -0.018em;
+      text-wrap: balance;
+    }
+    .q-title:focus { outline: none; }
+    .q-desc { margin-top: 10px; color: var(--muted); font-size: 15.5px; line-height: 1.6; max-width: 58ch; }
+    .q-desc a { color: var(--link); }
+    .q-body { margin-top: 26px; }
+
+    /* Welcome + done */
+    .hero-step { padding: 44px 40px 40px; }
+    .hero-step .chip { margin-bottom: 18px; }
+    .hero-step h1 { font: 400 clamp(30px, 4.4vw, 42px)/1.1 var(--font-serif); letter-spacing: -0.022em; text-wrap: balance; }
+    .hero-step p { margin-top: 14px; color: var(--body); font-size: 16.5px; line-height: 1.65; max-width: 54ch; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .done-mark {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(29,63,174,.08); color: var(--marble);
+      margin-bottom: 20px;
+    }
+
+    /* Fields */
+    .field + .field { margin-top: 18px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .row + .field, .field + .row { margin-top: 18px; }
+    label.lbl { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
+    label.lbl .opt { font-weight: 450; color: var(--muted); }
+    .input, .textarea {
+      width: 100%;
+      font: 450 16.5px/1.4 var(--font-sans); color: var(--ink);
+      background: var(--cream);
+      border: 1px solid rgba(16,19,31,.14);
+      border-radius: 12px;
+      padding: 13px 15px;
+      box-shadow: inset 0 1px 2px rgba(16,19,31,.04);
+      transition: border-color .3s var(--silk), box-shadow .3s var(--silk);
+    }
+    .input::placeholder, .textarea::placeholder { color: rgba(74,77,89,.6); }
+    .input:hover, .textarea:hover { border-color: rgba(16,19,31,.24); }
+    .input:focus, .textarea:focus { outline: none; border-color: var(--marble); box-shadow: 0 0 0 4px rgba(29,63,174,.12); }
+    .textarea { min-height: 160px; resize: vertical; }
+    [aria-invalid="true"].input, [aria-invalid="true"].textarea { border-color: var(--error); }
+
+    /* Choices */
+    .choices { display: grid; gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
+    .choices.cols-2 { grid-template-columns: 1fr 1fr; }
+    .choice { position: relative; }
+    .choice input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .choice label {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 48px; padding: 10px 14px 10px 10px;
+      background: var(--cream);
+      border: 1px solid rgba(16,19,31,.12);
+      border-radius: 12px;
+      font-size: 15.5px; font-weight: 500; line-height: 1.3;
+      cursor: pointer;
+      transition: border-color .3s var(--silk), background-color .3s var(--silk), box-shadow .3s var(--silk), transform .3s var(--silk);
+    }
+    .choice label:hover { border-color: rgba(29,63,174,.4); }
+    .key {
+      flex: none; width: 26px; height: 26px; border-radius: 7px;
+      display: grid; place-items: center;
+      border: 1px solid rgba(16,19,31,.16); background: #fff;
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      transition: all .3s var(--silk);
+    }
+    .choice .check { margin-left: auto; opacity: 0; color: var(--marble); transition: opacity .3s var(--silk); }
+    .choice input:checked + label { border-color: var(--marble); background: rgba(29,63,174,.05); box-shadow: 0 0 0 1px var(--marble) inset; }
+    .choice input:checked + label .key { background: var(--marble); border-color: var(--marble); color: var(--cream); }
+    .choice input:checked + label .check { opacity: 1; }
+    .choice input:focus-visible + label { box-shadow: 0 0 0 4px rgba(29,63,174,.18); border-color: var(--marble); }
+    .other-input { margin-top: 10px; }
+
+    /* Checkbox acknowledgement */
+    .ack input:checked + label .key { border-radius: 7px; }
+    .terms {
+      margin-top: 18px; padding: 16px 18px;
+      background: rgba(242,237,228,.7); border-radius: var(--radius-inset);
+      font-size: 14px; line-height: 1.6; color: var(--muted);
+    }
+
+    /* Sample link card */
+    .link-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 16px 16px 18px; margin-bottom: 16px;
+      background: var(--ink); color: var(--cream);
+      border-radius: var(--radius-inset);
+      text-decoration: none;
+      transition: transform .5s var(--silk), box-shadow .5s var(--silk);
+      box-shadow: 0 12px 28px -16px rgba(16,19,31,.6);
+    }
+    .link-card:hover { transform: translateY(-1px); box-shadow: 0 18px 36px -18px rgba(29,63,174,.7); }
+    .link-card:focus-visible { outline: 2px solid rgba(29,63,174,.6); outline-offset: 3px; }
+    .link-card strong { display: block; font-size: 15.5px; font-weight: 600; }
+    .link-card span.u { font-size: 13px; opacity: .7; word-break: break-all; }
+    .link-card .pill-disc { margin-left: auto; flex: none; background: rgba(255,254,250,.12); }
+    .how { margin: 0 0 18px; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .how li { display: grid; grid-template-columns: 24px 1fr; gap: 10px; font-size: 15px; color: var(--body); line-height: 1.5; }
+    .how .n { width: 24px; height: 24px; border-radius: 50%; background: rgba(29,63,174,.07); color: var(--marble); display: grid; place-items: center; font-size: 12px; font-weight: 600; }
+
+    /* Dropzone */
+    .drop {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      gap: 6px; min-height: 180px; padding: 24px;
+      border: 1.5px dashed rgba(29,63,174,.3);
+      border-radius: var(--radius-inset);
+      background: rgba(29,63,174,.025);
+      transition: border-color .3s var(--silk), background-color .3s var(--silk);
+      cursor: pointer;
+    }
+    .drop:hover, .drop.is-over { border-color: var(--marble); background: rgba(29,63,174,.06); }
+    .drop:focus-within { border-color: var(--marble); box-shadow: 0 0 0 4px rgba(29,63,174,.12); }
+    .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .drop .icon { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--cream); color: var(--marble); box-shadow: var(--elev-1); margin-bottom: 6px; }
+    .drop strong { font-weight: 600; font-size: 15.5px; }
+    .drop strong u { color: var(--link); text-decoration: none; }
+    .drop small { color: var(--muted); font-size: 13.5px; }
+    .drop[aria-invalid="true"] { border-color: var(--error); }
+    .file-chip {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 12px 12px 14px;
+      background: var(--cream); border: 1px solid rgba(16,19,31,.12); border-radius: 12px;
+    }
+    .file-chip[hidden] { display: none; }
+    .file-chip .fi { width: 36px; height: 36px; border-radius: 9px; background: rgba(29,63,174,.08); color: var(--marble); display: grid; place-items: center; flex: none; font-size: 11px; font-weight: 700; letter-spacing: .03em; }
+    .file-chip .fn { min-width: 0; flex: 1; }
+    .file-chip .fn strong { display: block; font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-chip .fn small { color: var(--muted); font-size: 13px; }
+    .icon-btn {
+      flex: none; width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center;
+      border: 1px solid rgba(16,19,31,.1); background: #fff; color: var(--muted); cursor: pointer;
+      transition: color .3s var(--silk), border-color .3s var(--silk);
+    }
+    .icon-btn:hover { color: var(--error); border-color: rgba(180,35,24,.35); }
+    .icon-btn:focus-visible { outline: 2px solid rgba(29,63,174,.45); outline-offset: 2px; }
+
+    .error {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 14px; color: var(--error); font-size: 14px; font-weight: 500;
+    }
+    .error[hidden] { display: none; }
+    .field-error { margin-top: 6px; color: var(--error); font-size: 13.5px; font-weight: 500; }
+    .field-error:empty { display: none; }
+
+    /* Footer actions */
+    .actions {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 30px;
+    }
+    .actions .hint { font-size: 13px; color: var(--muted); }
+    .actions .hint kbd { font: 600 12px var(--font-sans); padding: 2px 6px; border-radius: 5px; border: 1px solid rgba(16,19,31,.15); background: #fff; }
+    .actions .right { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      height: 44px; padding: 0 14px 0 10px; border-radius: 999px;
+      border: 0; background: transparent; color: var(--muted);
+      font: 550 14.5px var(--font-sans); cursor: pointer;
+      transition: color .3s var(--silk), background-color .3s var(--silk);
+    }
+    .back-btn:hover { color: var(--ink); background: rgba(16,19,31,.05); }
+    .back-btn:focus-visible { outline: 2px solid rgba(29,63,174,.45); outline-offset: 2px; }
+    .back-btn[hidden] { display: none; }
+    .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,254,250,.35); border-top-color: var(--cream); animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .notice {
+      margin: 0 40px 28px; padding: 12px 14px; border-radius: 10px;
+      background: #fff5e0; color: #7a4b00; font-size: 13.5px; line-height: 1.5;
+    }
+    .notice[hidden] { display: none; }
+
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    @media (max-width: 640px) {
+      .stage { padding: 88px 12px 24px; align-items: flex-start; }
+      .step, .hero-step { padding: 24px 20px 26px; }
+      .progress { padding: 16px 20px 0; }
+      .row, .choices.cols-2 { grid-template-columns: 1fr; }
+      .actions .hint { display: none; }
+      .notice { margin: 0 20px 20px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .step.is-entering { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <nav aria-label="Primary">
+      <a class="logo" href="https://www.gojuly.ai/">july ai</a>
+      <a class="pill pill-sm pill-glass" href="index.html" style="padding:0 16px 0 6px">
+        <span class="pill-disc"><svg class="arrow to-left" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg></span>
+        Back to role
+      </a>
+    </nav>
+  </header>
+
+  <main class="stage">
+    <div class="card" id="card" data-at="welcome">
+      <div class="progress" aria-hidden="true">
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="progress-label" id="progressLabel">1 of 7</span>
+      </div>
+
+      <form id="form" novalidate>
+        <!-- Honeypot: real people never see or fill this -->
+        <div class="hp" aria-hidden="true">
+          <label>Leave this empty <input type="text" name="company_website" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <!-- Welcome -->
+        <section class="step hero-step" data-step="welcome" aria-labelledby="welcome-h">
+          <span class="chip"><i class="dot" aria-hidden="true"></i>AI Red Teaming · Contributor application</span>
+          <h1 id="welcome-h" tabindex="-1" class="q-title" style="margin-top:0">Welcome to the July AI Red Team application</h1>
+          <p>We’re excited to learn about you and your potential contribution to our mission of enabling more economic opportunities for humans in the AI era.</p>
+          <div class="meta-row">
+            <span class="chip">7 questions</span>
+            <span class="chip">About 10 minutes</span>
+            <span class="chip">Resume required</span>
+          </div>
+          <div class="actions">
+            <span class="hint">Press <kbd>Enter ↵</kbd></span>
+            <div class="right">
+              <button type="button" class="pill pill-ink pill-liquid pill-lg" data-next>
+                Start
+                <span class="pill-disc"><svg class="arrow to-right" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1. Contact -->
+        <section class="step" data-step="contact" aria-labelledby="q1" hidden>
+          <span class="q-num">Question 1</span>
+          <h2 id="q1" class="q-title" tabindex="-1">Please provide your basic personal information.</h2>
+          <div class="q-body">
+            <div class="row">
+              <div class="field">
+                <label class="lbl" for="firstName">First name</label>
+                <input class="input" id="firstName" name="firstName" autocomplete="given-name" required aria-describedby="firstName-err">
+                <p class="field-error" id="firstName-err" aria-live="polite"></p>
+              </div>
+              <div class="field" style="margin-top:0">
+                <label class="lbl" for="lastName">Last name</label>
+                <input class="input" id="lastName" name="lastName" autocomplete="family-name" required aria-describedby="lastName-err">
+                <p class="field-error" id="lastName-err" aria-live="polite"></p>
+              </div>
+            </div>
+            <div class="field">
+              <label class="lbl" for="email">Email</label>
+              <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="email-err">
+              <p class="field-error" id="email-err" aria-live="polite"></p>
+            </div>
+            <div class="field">
+              <label class="lbl" for="phone">Phone number <span class="opt">(optional)</span></label>
+              <input class="input" id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+1 (201) 555-0123" aria-describedby="phone-err">
+              <p class="field-error" id="phone-err" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Source -->
+        <section class="step" data-step="source" aria-labelledby="q2" hidden>
+          <span class="q-num">Question 2</span>
+          <h2 id="q2" class="q-title" tabindex="-1">How did you hear about July AI?</h2>
+          <div class="q-body">
+            <fieldset class="choices cols-2" data-group="source" data-required aria-labelledby="q2"></fieldset>
+          </div>
+        </section>
+
+        <!-- 3. Resume -->
+        <section class="step" data-step="resume" aria-labelledby="q3" hidden>
+          <span class="q-num">Question 3</span>
+          <h2 id="q3" class="q-title" tabindex="-1">Upload your resume to help us understand your qualifications.</h2>
+          <p class="q-desc">PDF or Word, up to 10 MB.</p>
+          <div class="q-body">
+            <div class="drop" id="drop">
+              <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-labelledby="q3" aria-describedby="drop-copy">
+              <span class="icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V3M4.5 6.5 8 3l3.5 3.5M3 13h10"/></svg></span>
+              <strong id="drop-copy"><u>Choose a file</u> or drag it here</strong>
+              <small>PDF, DOC or DOCX · up to 10 MB</small>
+            </div>
+            <div class="file-chip" id="fileChip" hidden>
+              <span class="fi" id="fileExt">PDF</span>
+              <span class="fn"><strong id="fileName"></strong><small id="fileSize"></small></span>
+              <button type="button" class="icon-btn" id="fileRemove" aria-label="Remove file">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Work authorization -->
+        <section class="step" data-step="auth" aria-labelledby="q4" hidden>
+          <span class="q-num">Question 4</span>
+          <h2 id="q4" class="q-title" tabindex="-1">Are you authorized to work in the U.S.?</h2>
+          <p class="q-desc">This role will be an independent contractor (1099) and you will be required to have work authorization.</p>
+          <div class="q-body">
+            <fieldset class="choices" data-group="workAuth" data-required aria-labelledby="q4">
+              <div class="choice"><input type="radio" name="workAuth" id="wa-1" value="Yes, I am a U.S. citizen"><label for="wa-1"><span class="key">A</span>Yes, I am a U.S. citizen<svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></label></div>
+              <div class="choice"><input type="radio" name="workAuth" id="wa-2" value="Yes, I am a permanent resident"><label for="wa-2"><span class="key">B</span>Yes, I am a permanent resident<svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></label></div>
+              <div class="choice"><input type="radio" name="workAuth" id="wa-3" value="Other"><label for="wa-3"><span class="key">C</span>Other<svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></label></div>
+            </fieldset>
+            <div class="other-input" id="workAuthOtherWrap" hidden>
+              <label class="visually-hidden" for="workAuthOther">Describe your work authorization</label>
+              <input class="input" id="workAuthOther" name="workAuthOther" placeholder="Tell us about your work authorization" aria-describedby="workAuthOther-err">
+              <p class="field-error" id="workAuthOther-err" aria-live="polite"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Acknowledge sample -->
+        <section class="step" data-step="ack" aria-labelledby="q5" hidden>
+          <span class="q-num">Question 5</span>
+          <h2 id="q5" class="q-title" tabindex="-1">As part of your application, please submit a sample red team prompt on the next page.</h2>
+          <p class="q-desc">Based on our review of your resume and sample submissions, we may invite you to an interview. Check the box to acknowledge that this is <strong>part of the application process</strong>. We will then invite select candidates.</p>
+          <div class="q-body">
+            <div class="choices" data-group="ackProcess" data-required>
+              <div class="choice ack"><input type="checkbox" name="ackProcess" id="ack-1" value="yes"><label for="ack-1"><span class="key">A</span>I understand this is part of the application process<svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></label></div>
+            </div>
+            <p class="terms">To submit a sample, you will need to sign up for an account and agree to our Terms of Use, which govern use of our free tools generally. Your sample submissions are governed by the Terms of Use (including, if applicable, profit sharing), and your sample submissions will be considered “Content”. Time spent submitting samples is not eligible for hourly pay.</p>
+          </div>
+        </section>
+
+        <!-- 6. Sample submission -->
+        <section class="step" data-step="sample" aria-labelledby="q6" hidden>
+          <span class="q-num">Question 6</span>
+          <h2 id="q6" class="q-title" tabindex="-1">Please submit a sample red team prompt for the application.</h2>
+          <p class="q-desc">Check the box once complete.</p>
+          <div class="q-body">
+            <a class="link-card" href="https://app.gojuly.ai/?invite_code=PGHFQGWA" target="_blank" rel="noopener noreferrer">
+              <span><strong>Open the July app</strong><span class="u">app.gojuly.ai/?invite_code=PGHFQGWA</span></span>
+              <span class="pill-disc"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(-45deg)"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg></span>
+              <span class="visually-hidden">(opens in a new tab)</span>
+            </a>
+            <ol class="how">
+              <li><span class="n">1</span><span>Navigate to <strong>Red Team Sample Submission</strong> → <strong>View</strong> to get started.</span></li>
+              <li><span class="n">2</span><span>You’ll see three challenges. Complete them!</span></li>
+              <li><span class="n">✦</span><span><strong>New to red teaming?</strong> Complete the “AI Red Team” module first. It introduces red teaming and helps you submit better samples.</span></li>
+            </ol>
+            <div class="choices" data-group="ackSample" data-required>
+              <div class="choice ack"><input type="checkbox" name="ackSample" id="ack-2" value="yes"><label for="ack-2"><span class="key">A</span>I understand and agree<svg class="check" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></label></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Details -->
+        <section class="step" data-step="details" aria-labelledby="q7" hidden>
+          <span class="q-num">Question 7 <span class="req">· optional</span></span>
+          <h2 id="q7" class="q-title" tabindex="-1">Please share any additional details here.</h2>
+          <div class="q-body">
+            <label class="visually-hidden" for="details">Additional details</label>
+            <textarea class="textarea" id="details" name="details" placeholder="Portfolio links, relevant writing, anything else we should know…" maxlength="5000"></textarea>
+          </div>
+        </section>
+
+        <!-- Done -->
+        <section class="step hero-step" data-step="done" aria-labelledby="done-h" hidden>
+          <div class="done-mark" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5 6.5 11.5 12.5 4.5"/></svg></div>
+          <h1 id="done-h" tabindex="-1" class="q-title" style="margin-top:0">Thank you for applying to July AI</h1>
+          <p>We appreciate your interest in joining our Red Team Project. We will review your application and get back to you when there is a fantastic fit.</p>
+          <div class="actions" style="justify-content:flex-start">
+            <a class="pill pill-paper" href="https://www.gojuly.ai/">
+              Visit gojuly.ai
+              <span class="pill-disc"><svg class="arrow to-out" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(-45deg)"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg></span>
+            </a>
+          </div>
+        </section>
+
+        <!-- Shared actions for question steps -->
+        <div class="step" id="nav" style="padding-top:0" hidden>
+          <p class="error" id="stepError" role="alert" hidden></p>
+          <div class="actions" style="margin-top:18px">
+            <button type="button" class="back-btn" id="backBtn">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate(180deg)"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg>
+              Back
+            </button>
+            <div class="right">
+              <span class="hint" id="enterHint">Press <kbd>Enter ↵</kbd></span>
+              <button type="button" class="pill pill-ink pill-liquid pill-lg" id="nextBtn">
+                <span id="nextLabel">Continue</span>
+                <span class="pill-disc" id="nextDisc"><svg class="arrow to-right" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M8.75 3.75 13 8l-4.25 4.25"/></svg></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <p class="notice" id="devNotice" hidden>Preview mode: no submission endpoint is set in <code>config.js</code>, so answers are logged to the console and not saved.</p>
+    </div>
+  </main>
+
+  <p class="visually-hidden" id="announce" aria-live="polite"></p>
+
+  <script src="config.js"></script>
+  <script src="apply.js"></script>
+</body>
+</html>
