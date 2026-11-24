@@ -46,6 +46,11 @@ Opening the `/exec` URL in a browser should return
 
 ## Notes
 
+- The last step saves the application with status **Sample pending** and opens
+  the July app (`app.gojuly.ai/?invite_code=PGHFQGWA`) in a new tab for the three
+  sample challenges. Nothing marks it complete automatically yet: that needs the
+  main July app to report sample-module progress. Until then, check completion in
+  the `#sample_submission_activities` Slack channel.
 - The form saves progress in the applicant's browser, but not the resume
   file, so a returning applicant picks up no later than the resume step.
 - Resumes are limited to PDF, DOC or DOCX, up to 10 MB. The limit is checked

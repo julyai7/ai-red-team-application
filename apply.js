@@ -5,6 +5,9 @@
   var MAX_MB = CONFIG.maxResumeMB || 10;
   var STORE_KEY = 'july-redteam-application-v1';
   var QUESTION_COUNT = 6;
+  var SAMPLE_APP_URL = 'https://app.gojuly.ai/?invite_code=PGHFQGWA';
+  var FINAL_LABEL = 'Save application & start sample submission';
+  var OUT_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg>';
 
   var SOURCES = [
     'Referral', '80,000 Hours', 'Reddit', 'LinkedIn', 'Discord', 'ilovecreatives',
@@ -33,6 +36,7 @@
   var current = 0;
   var resumeFile = null;
   var submitting = false;
+  var appOpened = false;
 
   if (!CONFIG.submitEndpoint) document.getElementById('devNotice').hidden = false;
 
@@ -57,6 +61,9 @@
     if (dir === 'back') step.classList.add('is-back');
     current = i;
     progress.hidden = !isQuestion(i);
+    // Remind applicants which email to sign up with on the July app.
+    var email = form.elements.email.value.trim();
+    step.querySelectorAll('[data-email-echo]').forEach(function (el) { el.textContent = email; });
 
     var q = isQuestion(i);
     nav.hidden = !q;
@@ -65,7 +72,8 @@
       progressFill.style.width = (i / QUESTION_COUNT) * 100 + '%';
       progressLabel.textContent = i + ' of ' + QUESTION_COUNT;
       var last = i === QUESTION_COUNT;
-      nextLabel.textContent = last ? 'Submit application' : 'Continue';
+      nextLabel.textContent = last ? FINAL_LABEL : 'Continue';
+      nextDisc.innerHTML = last ? OUT_ICON : '';
       backBtn.hidden = false;
     }
     if (focus !== false) {
@@ -82,7 +90,13 @@
   function next() {
     if (submitting) return;
     if (isQuestion(current) && !validate(current)) return;
-    if (current === QUESTION_COUNT) { submit(); return; }
+    if (current === QUESTION_COUNT) {
+      // Open the July app inside the click/keypress itself so popup blockers allow it,
+      // then save the application in the background.
+      if (!appOpened) { window.open(SAMPLE_APP_URL, '_blank', 'noopener'); appOpened = true; }
+      submit();
+      return;
+    }
     show(current + 1, 'fwd');
   }
   function back() { if (current > 0 && !submitting) show(current - 1, 'back'); }
@@ -252,7 +266,6 @@
       var data = { step: stepName(current) === 'done' ? 0 : current };
       SAVED_FIELDS.forEach(function (n) { data[n] = form.elements[n].value; });
       data.ackProcess = form.elements.ackProcess.checked;
-      data.ackSample = form.elements.ackSample.checked;
       localStorage.setItem(STORE_KEY, JSON.stringify(data));
     } catch (e) { /* storage unavailable: progress just isn't kept */ }
   }
@@ -268,7 +281,6 @@
       } else el.value = data[n];
     });
     form.elements.ackProcess.checked = !!data.ackProcess;
-    form.elements.ackSample.checked = !!data.ackSample;
     document.getElementById('workAuthOtherWrap').hidden = data.workAuth !== 'Other';
     // The resume isn't saved, so never resume past the upload step.
     var resumeIdx = steps.findIndex(function (s) { return s.getAttribute('data-step') === 'resume'; });
@@ -290,8 +302,8 @@
     submitting = on;
     nextBtn.disabled = on;
     backBtn.disabled = on;
-    nextLabel.textContent = on ? 'Submitting…' : 'Submit application';
-    nextDisc.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span>' : '';
+    nextLabel.textContent = on ? 'Saving…' : FINAL_LABEL;
+    nextDisc.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span>' : OUT_ICON;
   }
 
   function finish() {
@@ -316,7 +328,7 @@
         source: f.source.value,
         workAuth: f.workAuth.value === 'Other' ? 'Other: ' + f.workAuthOther.value.trim() : f.workAuth.value,
         ackApplicationProcess: f.ackProcess.checked,
-        ackSampleSubmitted: f.ackSample.checked,
+        status: 'Sample pending',
         resume: { name: resumeFile.name, type: resumeFile.type || 'application/octet-stream', size: resumeFile.size, data: b64 },
         submittedAt: new Date().toISOString(),
         page: location.href
@@ -348,7 +360,7 @@
     }).catch(function (err) {
       console.error(err);
       setBusy(false);
-      showError('We couldn’t send your application. Check your connection and try again. If it keeps failing, email <a href="mailto:info@gojuly.ai" style="color:inherit">info@gojuly.ai</a>.');
+      showError('We couldn’t save your application. Check your connection and try again. If it keeps failing, email <a href="mailto:info@gojuly.ai" style="color:inherit">info@gojuly.ai</a>.');
     });
   }
 
