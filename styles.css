@@ -241,6 +241,16 @@ form { margin: 0; }
 .choice input:checked + label .key { background: var(--accent); border-color: var(--accent); color: #fff; }
 .choice input:checked + label .check { opacity: 1; }
 .choice input:focus-visible + label { box-shadow: 0 0 0 3px rgba(29, 63, 174, .2); border-color: var(--accent); }
+/* Plain square checkbox (no letter key), used on the last step. */
+.box {
+  flex: none; width: 18px; height: 18px; margin: 1px 2px 0 4px; border-radius: 4px;
+  display: grid; place-items: center;
+  border: 1.5px solid rgba(16, 19, 31, .35); background: var(--surface);
+  color: transparent;
+  transition: background-color .2s var(--silk), border-color .2s var(--silk), color .2s var(--silk);
+}
+.checkbox-label { align-items: flex-start; }
+.choice input:checked + label .box { background: var(--accent); border-color: var(--accent); color: #fff; }
 .other-input { margin-top: 10px; }
 .other-input[hidden] { display: none; }
 
