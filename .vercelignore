@@ -1,3 +1,6 @@
-apps-script
 README.md
 .git
+test
+db
+scripts
+.env*

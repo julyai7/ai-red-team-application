@@ -101,7 +101,8 @@
         <section class="panel" id="application" role="tabpanel" aria-labelledby="tab-application" tabindex="-1" hidden>
           <div class="progress" id="progress" aria-hidden="true" hidden>
             <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-            <span class="progress-label" id="progressLabel">1 of 7</span>
+            <span class="save-state" id="saveState" aria-live="polite"></span>
+            <span class="progress-label" id="progressLabel">1 of 6</span>
           </div>
 
           <form id="form" novalidate>
@@ -119,6 +120,7 @@
                 <li><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.5 2H4.5A1.5 1.5 0 0 0 3 3.5v9A1.5 1.5 0 0 0 4.5 14h7a1.5 1.5 0 0 0 1.5-1.5V5.5z"/><path d="M9.5 2v3.5H13M5.5 8.5h5M5.5 11h3.5"/></svg>Resume and 3 sample submissions required</li>
               </ul>
               <div class="actions">
+                <p class="returning-link" id="returningLink" hidden>Already started? <button type="button" class="link-btn" data-goto="returning">Continue your application</button></p>
                 <div class="right"><button type="button" class="btn" data-next>Start application</button></div>
               </div>
             </div>
@@ -144,6 +146,7 @@
                   <label class="lbl" for="email">Email</label>
                   <input class="input" id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" required aria-describedby="email-err">
                   <p class="field-error" id="email-err" aria-live="polite"></p>
+                  <p class="field-note" id="emailNote" hidden>Your application is saved to this email. <button type="button" class="link-btn" id="startOver">Not you? Start over</button></p>
                 </div>
                 <div class="field">
                   <label class="lbl" for="phone">Phone number <span class="opt">(optional)</span></label>
@@ -176,6 +179,7 @@
                 <div class="file-chip" id="fileChip" hidden>
                   <span class="fi" id="fileExt">PDF</span>
                   <span class="fn"><strong id="fileName"></strong><small id="fileSize"></small></span>
+                  <span class="spinner" id="fileSpin" aria-hidden="true" hidden></span>
                   <button type="button" class="icon-btn" id="fileRemove" aria-label="Remove file">
                     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
                   </button>
@@ -250,6 +254,33 @@
               </div>
             </div>
 
+            <!-- Returning applicant: request a link to reopen their draft -->
+            <div class="step intro" data-step="returning" hidden>
+              <h2 class="q-title" tabindex="-1" style="margin-top:0">Continue your application</h2>
+              <p>Enter the email you applied with. We’ll send you a link to pick up where you left off.</p>
+              <div class="field return-field">
+                <label class="lbl" for="returnEmail">Email</label>
+                <input class="input" id="returnEmail" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" aria-describedby="returnEmail-err">
+                <p class="field-error" id="returnEmail-err" aria-live="polite"></p>
+              </div>
+              <p class="error" id="returnError" role="alert" hidden></p>
+              <div class="actions">
+                <button type="button" class="btn-quiet" data-goto="welcome">
+                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 8H3M7.25 3.75 3 8l4.25 4.25"/></svg>
+                  Back
+                </button>
+                <div class="right"><button type="button" class="btn" id="returnBtn">Email me a link</button></div>
+              </div>
+            </div>
+
+            <!-- Link sent -->
+            <div class="step intro" data-step="check" hidden>
+              <div class="done-mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3.5" width="12" height="9" rx="1.5"/><path d="m2.5 4.5 5.5 4.25 5.5-4.25"/></svg></div>
+              <h2 class="q-title" tabindex="-1" style="margin-top:0">Check your email</h2>
+              <p id="checkMsg"></p>
+              <p class="small-note">The link expires in 30 minutes. Don’t see it? Check your spam folder, or <button type="button" class="link-btn" data-goto="returning">send another link</button>.</p>
+            </div>
+
             <!-- Shared nav for question steps -->
             <div id="nav" hidden>
               <p class="error" id="stepError" role="alert" hidden></p>
@@ -265,7 +296,7 @@
             </div>
           </form>
 
-          <p class="notice" id="devNotice" hidden>Preview mode: no submission endpoint is set in <code>config.js</code>, so answers are logged to the console and not saved.</p>
+          <p class="notice" id="devNotice" hidden>Preview mode: the application backend isn’t connected, so answers are only kept in this browser.</p>
         </section>
       </div>
     </div>

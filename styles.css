@@ -384,3 +384,22 @@ a.btn { text-decoration: none; }
   .step.is-entering { animation: none; }
   * { transition-duration: .01ms !important; }
 }
+
+/* ---------- Saved drafts ---------- */
+.save-state { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.save-state:empty { display: none; }
+.save-state.is-error { color: var(--error); }
+.link-btn {
+  padding: 0; border: 0; background: none; font: inherit; font-weight: 600;
+  color: var(--link); cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--accent); }
+.returning-link { margin: 0; font-size: 14.5px; color: var(--muted); }
+.returning-link[hidden] { display: none; }
+.field-note { margin-top: 6px; font-size: 13.5px; color: var(--muted); }
+.field-note .link-btn { font-weight: 500; }
+.input[readonly] { background: rgba(16, 19, 31, .03); color: var(--muted); }
+.return-field { margin-top: 22px; max-width: 420px; }
+.small-note { font-size: 14.5px; color: var(--muted); }
+.file-chip .spinner { flex: none; border-color: rgba(29, 63, 174, .18); border-top-color: var(--accent); }
+.spinner[hidden] { display: none; }
