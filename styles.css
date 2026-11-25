@@ -181,13 +181,13 @@ form { margin: 0; }
 .q-body { margin-top: 22px; }
 
 .intro p { margin-top: 8px; color: var(--body); font-size: 16.5px; line-height: 1.65; max-width: 60ch; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
-.chips-row2 { margin-top: 8px; }
-.chip {
-  display: inline-flex; align-items: center; height: 28px; padding: 0 12px;
-  border-radius: 999px; background: rgba(16, 19, 31, .05);
-  color: var(--muted); font-size: 13px; font-weight: 500;
+.meta {
+  display: flex; flex-wrap: wrap; gap: 10px 24px;
+  margin: 20px 0 0; padding: 0; list-style: none;
+  color: var(--ink); font-size: 14.5px; font-weight: 500; line-height: 1.4;
 }
+.meta li { display: inline-flex; align-items: center; gap: 8px; }
+.meta svg { flex: none; color: var(--accent); position: relative; top: -1px; }
 .done-mark {
   width: 48px; height: 48px; border-radius: 50%;
   display: grid; place-items: center;
