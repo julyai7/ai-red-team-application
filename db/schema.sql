@@ -49,16 +49,8 @@ create table if not exists red_team.documents (
 create unique index if not exists documents_one_resume_per_application
   on red_team.documents (application_id) where kind = 'resume';
 
--- One-time links emailed to applicants so they can reopen their draft on any device.
--- Only a SHA-256 hash of the token is stored.
-create table if not exists red_team.login_tokens (
-  token_hash      text primary key,
-  application_id  uuid not null references red_team.applications (id) on delete cascade,
-  created_at      timestamptz not null default now(),
-  expires_at      timestamptz not null,
-  used_at         timestamptz
-);
-create index if not exists login_tokens_application_idx on red_team.login_tokens (application_id, created_at desc);
+-- Removed: emailed one-time links are no longer used.
+drop table if exists red_team.login_tokens;
 
 -- Browser sessions (an HttpOnly cookie holds the token; only its hash is stored).
 create table if not exists red_team.sessions (

@@ -1,18 +1,19 @@
 // POST /api/start  { email, firstName, lastName, phone }
 // Called when an applicant finishes question 1.
 //  - New email: creates their draft, signs this browser in, saves the answers.
-//  - Email already has an application: emails a one-time link instead, so nobody can
-//    open someone else's draft by typing their address.
-import { query, tx } from './_lib/db.js';
+//  - Same browser coming back: its session cookie reopens the draft.
+//  - Email already has an application (from another browser): refused with 409, so
+//    nobody can open or overwrite someone else's application by typing their address.
+import { tx } from './_lib/db.js';
 import { route, HttpError } from './_lib/http.js';
 import { checkAnswer, normalizeEmail } from './_lib/questions.js';
 import { sessionApplication, startSession } from './_lib/session.js';
-import { applicationState, saveAnswers, sendLoginLink } from './_lib/applications.js';
+import { applicationState, saveAnswers } from './_lib/applications.js';
 
 export default route({
   async POST(req, res, body) {
     // Bots fill the hidden field. Give them the normal-looking answer and store nothing.
-    if (body.company_website) return { status: 'check_email' };
+    if (body.company_website) throw new HttpError(409, 'already_applied');
 
     const email = normalizeEmail(body.email);
     if (!email) throw new HttpError(400, 'invalid_email');
@@ -47,8 +48,6 @@ export default route({
     });
     if (created) return { status: 'ok', application: await applicationState(created) };
 
-    const { rows } = await query('select * from red_team.applications where email = $1', [email]);
-    await sendLoginLink(rows[0]);
-    return { status: 'check_email' };
+    throw new HttpError(409, 'already_applied', 'An application with this email already exists.');
   },
 });

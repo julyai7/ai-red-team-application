@@ -137,8 +137,7 @@
   function next() {
     if (busy) return;
     var name = stepName(current);
-    if (name === 'returning') { requestLink(); return; }
-    if (name === 'check' || name === 'done') return;
+    if (name === 'done') return;
     if (isQuestion(current) && !validate(current)) return;
     if (name === 'contact' && mode === 'api' && !signedIn) { startApplication(); return; }
     if (current === QUESTION_COUNT) {
@@ -154,15 +153,6 @@
   function back() { if (current > 0 && !busy) show(current - 1, 'back'); }
 
   form.querySelectorAll('[data-next]').forEach(function (b) { b.addEventListener('click', next); });
-  form.querySelectorAll('[data-goto]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var to = b.getAttribute('data-goto');
-      if (to === 'returning' && !$('returnEmail').value) $('returnEmail').value = f.email.value.trim();
-      $('returnError').hidden = true;
-      show(idx(to), to === 'welcome' ? 'back' : 'fwd');
-      if (to === 'returning') $('returnEmail').focus();
-    });
-  });
   nextBtn.addEventListener('click', next);
   backBtn.addEventListener('click', back);
   form.addEventListener('submit', function (e) { e.preventDefault(); next(); });
@@ -273,7 +263,7 @@
       if (tag === 'A' || (tag === 'BUTTON' && t !== nextBtn)) return;
       if (tag === 'TEXTAREA' && !(e.metaKey || e.ctrlKey)) return;
       var n = stepName(current);
-      if (n === 'done' || n === 'check') return;
+      if (n === 'done') return;
       e.preventDefault();
       next();
       return;
@@ -387,10 +377,10 @@
     $('emailNote').hidden = true;
     setSaveState('');
     show(idx('contact'), 'back');
-    showError('You’ve been signed out. Select Continue and we’ll email you a link to pick up where you left off.');
+    showError('Your session ended. Continue in the browser where you started, or email <a href="mailto:info@gojuly.ai" style="color:inherit">info@gojuly.ai</a> for help.');
   }
 
-  // ---------- Starting, returning, and starting over ----------
+  // ---------- Starting and starting over ----------
   function startApplication() {
     setBusy(true);
     api('POST', '/start', {
@@ -401,45 +391,21 @@
       company_website: f.company_website.value
     }).then(function (r) {
       setBusy(false);
-      if (r.status === 'check_email') {
-        $('checkMsg').innerHTML = 'There’s already an application for <strong></strong>. We sent a link to that address so you can pick up where you left off.';
-        $('checkMsg').querySelector('strong').textContent = f.email.value.trim();
-        show(idx('check'), 'fwd');
-        return;
-      }
       applyState(r.application);
       setSaveState('Saved');
       show(current + 1, 'fwd');
     }).catch(function (err) {
       setBusy(false);
+      if (err.status === 409) {
+        setFieldError(f.email, 'An application with this email already exists.');
+        showError('Continue in the browser where you started your application, or email <a href="mailto:info@gojuly.ai" style="color:inherit">info@gojuly.ai</a> for help.');
+        f.email.focus();
+        return;
+      }
       showError('We couldn’t save your details. Check your connection and try again.' + CONTACT_US);
       console.error(err);
     });
   }
-
-  function requestLink() {
-    var input = $('returnEmail');
-    var v = input.value.trim();
-    var msg = emailError(v);
-    setFieldError(input, msg);
-    $('returnError').hidden = true;
-    if (msg) { input.focus(); return; }
-    var btn = $('returnBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending…';
-    api('POST', '/auth/link', { email: v }).then(function () {
-      $('checkMsg').innerHTML = 'If there’s an application for <strong></strong>, we’ve sent a link to that address so you can pick up where you left off.';
-      $('checkMsg').querySelector('strong').textContent = v;
-      show(idx('check'), 'fwd');
-    }).catch(function (err) {
-      console.error(err);
-      showError('We couldn’t send the link. Try again in a minute.' + CONTACT_US, $('returnError'));
-    }).then(function () {
-      btn.disabled = false;
-      btn.textContent = 'Email me a link';
-    });
-  }
-  $('returnBtn').addEventListener('click', requestLink);
 
   $('startOver').addEventListener('click', function () {
     api('POST', '/auth/logout', {}).catch(function () {}).then(function () {
@@ -618,34 +584,17 @@
 
   show(0, 'fwd', false);
 
-  // A link from the "continue your application" email: ?resume=<token>#application
-  var token = new URLSearchParams(location.search).get('resume');
-  if (token) history.replaceState(null, '', location.pathname + '#application');
-  var linkFailed = false;
-
   if (location.protocol === 'file:') {
     startPreview();
   } else {
-    (token
-      ? api('POST', '/auth/verify', { token: token }).catch(function (err) {
-          if (err.status !== 400) throw err;
-          linkFailed = true;
-          return api('GET', '/application');
-        })
-      : api('GET', '/application')
-    ).then(function (r) {
+    api('GET', '/application').then(function (r) {
       mode = 'api';
-      $('returningLink').hidden = false;
       applyState(r.application);
-      show(resumeStep(r.application), 'fwd', !!token);
+      show(resumeStep(r.application), 'fwd', false);
     }).catch(function (err) {
-      if (err.status !== 401) { console.warn('Application API unavailable, running in preview mode.', err); startPreview(); return; }
-      mode = 'api';
-      $('returningLink').hidden = false;
-      if (linkFailed) {
-        show(idx('returning'), 'fwd');
-        showError('That link has expired or was already used. Enter your email and we’ll send a new one.', $('returnError'));
-      }
+      if (err.status === 401) { mode = 'api'; return; } // new visitor
+      console.warn('Application API unavailable, running in preview mode.', err);
+      startPreview();
     });
   }
 

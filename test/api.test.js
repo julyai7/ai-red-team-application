@@ -6,20 +6,16 @@ import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { useTestDb } from '../api/_lib/db.js';
 import { useFakeS3 } from '../api/_lib/s3.js';
-import { useFakeEmail } from '../api/_lib/email.js';
 
 import start from '../api/start.js';
 import application from '../api/application.js';
 import submit from '../api/submit.js';
 import resume from '../api/resume.js';
-import link from '../api/auth/link.js';
-import verify from '../api/auth/verify.js';
 import logout from '../api/auth/logout.js';
 
 process.env.APP_URL = 'https://apply.example.com';
 
 let pg;
-const sent = [];
 const objects = new Map();
 
 before(async () => {
@@ -28,7 +24,6 @@ before(async () => {
   // Run it twice to prove it's safe to re-run.
   await pg.exec(await readFile(new URL('../db/schema.sql', import.meta.url), 'utf8'));
   useTestDb(pg);
-  useFakeEmail(async (m) => { sent.push(m); });
   useFakeS3({
     putObject: async (key, body) => { objects.set(key, body.length); },
     deleteObject: async (key) => { objects.delete(key); },
@@ -101,57 +96,29 @@ test('full happy path: draft, autosave, resume, submit', async () => {
   assert.equal(rows[0].status, 'submitted');
 });
 
-test('one application per email; returning applicant gets a magic link', async () => {
+test('one application per email; same browser picks up where it left off', async () => {
   const first = browser();
   await first(start, 'POST', contact('grace@example.com'));
   await first(application, 'PATCH', { answers: { source: 'LinkedIn' } });
 
-  // Same person on another device: no access to the draft, an email instead.
+  // Same browser: the session reopens the draft, and question 1 can be saved again.
+  const again = await first(start, 'POST', contact('Grace@example.com'));
+  assert.equal(again.status, 200);
+  assert.equal(again.body.application.answers.source, 'LinkedIn');
+  assert.equal((await first(application, 'GET')).body.application.answers.source, 'LinkedIn');
+
+  // Another browser with the same email: refused, nothing shown or overwritten.
   const other = browser();
-  sent.length = 0;
   const s = await other(start, 'POST', { ...contact('GRACE@example.com'), firstName: 'Mallory' });
-  assert.equal(s.body.status, 'check_email');
+  assert.equal(s.status, 409);
+  assert.equal(s.body.error, 'already_applied');
+  assert.equal(s.body.application, undefined);
   assert.equal(s.headers['set-cookie'], undefined);
   assert.equal((await other(application, 'GET')).status, 401);
-  assert.equal(sent.length, 1);
-  assert.equal(sent[0].to, 'grace@example.com');
-
-  // The typed-in name did not overwrite the real draft.
-  const { rows } = await pg.query(`select count(*)::int as n from red_team.applications where email = 'grace@example.com'`);
+  const { rows } = await pg.query(`select o.first_name, (select count(*)::int from red_team.applications where email = 'grace@example.com') as n
+                                     from red_team.application_overview o where o.email = 'grace@example.com'`);
   assert.equal(rows[0].n, 1);
-
-  const token = new URL(/https:\/\/\S+/.exec(sent[0].text)[0]).searchParams.get('resume');
-  const v = await other(verify, 'POST', { token });
-  assert.equal(v.status, 200);
-  assert.equal(v.body.application.answers.first_name, 'Ada');
-  assert.equal(v.body.application.answers.source, 'LinkedIn');
-  assert.equal((await other(application, 'GET')).status, 200);
-
-  // Links work once.
-  assert.equal((await browser()(verify, 'POST', { token })).status, 400);
-});
-
-test('magic links are rate limited and do not reveal who applied', async () => {
-  const call = browser();
-  sent.length = 0;
-  const unknown = await call(link, 'POST', { email: 'nobody@example.com' });
-  assert.equal(unknown.body.status, 'check_email');
-  assert.equal(sent.length, 0);
-
-  await browser()(start, 'POST', contact('linus@example.com'));
-  await call(link, 'POST', { email: 'linus@example.com' });
-  await call(link, 'POST', { email: 'linus@example.com' }); // within a minute: skipped
-  assert.equal(sent.length, 1);
-});
-
-test('expired links are rejected', async () => {
-  const call = browser();
-  sent.length = 0;
-  await browser()(start, 'POST', contact('old@example.com'));
-  await call(link, 'POST', { email: 'old@example.com' });
-  const token = new URL(/https:\/\/\S+/.exec(sent[0].text)[0]).searchParams.get('resume');
-  await pg.query(`update red_team.login_tokens set expires_at = now() - interval '1 second'`);
-  assert.equal((await call(verify, 'POST', { token })).status, 400);
+  assert.equal(rows[0].first_name, 'Ada');
 });
 
 test('logout ends the session', async () => {
@@ -169,7 +136,7 @@ test('rejects bad input, other sites, and bots', async () => {
   assert.equal((await call(start, 'POST', contact('evil@example.com'), { origin: 'https://evil.example' })).status, 403);
 
   const bot = await call(start, 'POST', { ...contact('bot@example.com'), company_website: 'spam' });
-  assert.equal(bot.body.status, 'check_email');
+  assert.equal(bot.status, 409);
   const { rows } = await pg.query(`select count(*)::int as n from red_team.applications where email = 'bot@example.com'`);
   assert.equal(rows[0].n, 0);
 

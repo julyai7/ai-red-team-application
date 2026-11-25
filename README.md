@@ -10,7 +10,7 @@ https://ai-red-team-application.vercel.app.
   questions from the [original Typeform](https://form.typeform.com/to/sxEbJwG6).
 - **`apply.js`**: the form. Autosaves every answer to the API as people type.
 - **`api/`**: Vercel serverless functions (Node). They store applications in
-  Postgres and resumes in S3, and email one-time links through SendGrid.
+  Postgres and resumes in S3.
 - **`db/schema.sql`**: the tables, in their own `red_team` schema.
 - **`apply.html`**: redirects old links to `index.html#application`.
 
@@ -21,11 +21,13 @@ https://ai-red-team-application.vercel.app.
    **autosaved** (the progress bar shows "Saved").
 2. The **resume** (PDF, DOC or DOCX, up to 4 MB) is sent to `/api/resume`, which
    stores it in S3. The 4 MB cap comes from Vercel's 4.5 MB request limit.
-3. **One application per person**: emails are unique. If someone enters an email
-   that already has an application, nothing is shown or overwritten. Instead we email
-   them a one-time link (expires in 30 minutes) that reopens their draft on any device.
-   "Continue your application" on the first screen does the same.
-4. The last step marks the application **submitted** and opens the July app for the
+3. **Coming back**: the session cookie lasts 30 days, so an applicant who returns in
+   the same browser lands on the question they were on, with their answers filled in.
+4. **One application per person**: emails are unique. If someone enters an email that
+   already has an application from a different browser, the form says so and asks them
+   to continue where they started (or email info@gojuly.ai). Nothing is shown or
+   overwritten. No emails are sent.
+5. The last step marks the application **submitted** and opens the July app for the
    three sample challenges.
 
 ## Database (`red_team` schema)
@@ -35,7 +37,7 @@ https://ai-red-team-application.vercel.app.
 | `applications` | One row per applicant: `email` (unique), `status` (`draft` / `submitted`), `created_at`, `updated_at`, `submitted_at` |
 | `answers` | One row per answer: `application_id`, `question_key`, `answer_text`, `created_at`, `updated_at` |
 | `documents` | Files in S3: `kind` (`resume`, `transcript`, `other`), `s3_bucket`, `s3_key`, `file_name`, `content_type`, `size_bytes` |
-| `login_tokens`, `sessions` | Emailed links and browser sessions (hashed tokens only) |
+| `sessions` | Browser sessions (hashed tokens only) |
 | `application_overview` (view) | One row per application with every answer as a column. The easiest thing to browse in Postico. |
 
 Question keys: `first_name`, `last_name`, `phone`, `source`, `work_auth`,
@@ -90,9 +92,7 @@ July app's bucket (`julyai-prod`) and key.
 | `S3_BUCKET` | `july-uploads` |
 | `S3_REGION` | `us-east-2` (default) |
 | `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | key limited to the policy above |
-| `SENDGRID_API_KEY` | the July app's SendGrid key works |
-| `EMAIL_FROM` | `July AI <eun@gojuly.ai>` (must be a verified SendGrid sender) |
-| `APP_URL` | `https://ai-red-team-application.vercel.app` (base for emailed links) |
+| `APP_URL` | `https://ai-red-team-application.vercel.app` |
 
 Then redeploy: `vercel deploy --prod --scope july-ai`.
 
@@ -115,8 +115,7 @@ vercel dev        # site + API at http://localhost:3000 (needs the env vars abov
   the `#sample_submission_activities` Slack channel.
 - The sample button opens `app.gojuly.ai/?invite_code=PGHFQGWA`, which unlocks the
   Red Team Sample Submission module.
-- A hidden honeypot field drops simple bots. Emailed links are rate limited
-  (one a minute, five an hour per application).
+- A hidden honeypot field drops simple bots.
 - Styles are copied from `julyai7/julyai7.github.io`
   (`web/tailwind.config.js`, `web/src/index.css`). `media/marble.jpg` and
   `favicon.svg` come from that repo too.
