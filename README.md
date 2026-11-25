@@ -41,7 +41,7 @@ https://ai-red-team-application.vercel.app.
 | `application_overview` (view) | One row per application with every answer as a column. The easiest thing to browse in Postico. |
 
 Question keys: `first_name`, `last_name`, `phone`, `source`, `work_auth`,
-`work_auth_other`, `ack_application_process`, `ack_sample_steps`. The allowed
+`work_auth_other`, `agreed_samples_required`, `read_sample_steps`. The allowed
 values live in `api/_lib/questions.js`; keep them in sync with `index.html`.
 
 The schema lives beside the July app's tables in the same database but in its own

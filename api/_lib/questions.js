@@ -18,8 +18,8 @@ export const QUESTIONS = {
   source: { options: SOURCES },
   work_auth: { options: WORK_AUTH },
   work_auth_other: { max: 500 },
-  ack_application_process: { options: BOOL },
-  ack_sample_steps: { options: BOOL },
+  agreed_samples_required: { options: BOOL },
+  read_sample_steps: { options: BOOL },
 };
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -49,8 +49,8 @@ export function missingForSubmit(answers, hasResume) {
   const missing = [];
   for (const k of ['first_name', 'last_name', 'source', 'work_auth']) if (!answers[k]?.trim()) missing.push(k);
   if (answers.work_auth === 'Other' && !answers.work_auth_other?.trim()) missing.push('work_auth_other');
-  if (answers.ack_application_process !== 'true') missing.push('ack_application_process');
-  if (answers.ack_sample_steps !== 'true') missing.push('ack_sample_steps');
+  if (answers.agreed_samples_required !== 'true') missing.push('agreed_samples_required');
+  if (answers.read_sample_steps !== 'true') missing.push('read_sample_steps');
   if (!hasResume) missing.push('resume');
   return missing;
 }

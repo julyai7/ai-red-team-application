@@ -291,8 +291,8 @@
       source: f.source.value || '',
       work_auth: f.workAuth.value || '',
       work_auth_other: f.workAuthOther.value.trim(),
-      ack_application_process: f.ackProcess.checked ? 'true' : 'false',
-      ack_sample_steps: f.ackSteps.checked ? 'true' : 'false'
+      agreed_samples_required: f.ackProcess.checked ? 'true' : 'false',
+      read_sample_steps: f.ackSteps.checked ? 'true' : 'false'
     };
   }
 
@@ -352,8 +352,8 @@
     Array.prototype.forEach.call(f.workAuth, function (r) { r.checked = r.value === a.work_auth; });
     f.workAuthOther.value = a.work_auth_other || '';
     $('workAuthOtherWrap').hidden = a.work_auth !== 'Other';
-    f.ackProcess.checked = a.ack_application_process === 'true';
-    f.ackSteps.checked = a.ack_sample_steps === 'true';
+    f.ackProcess.checked = a.agreed_samples_required === 'true';
+    f.ackSteps.checked = a.read_sample_steps === 'true';
     resumeInfo = app.resume;
     if (resumeInfo) showChip(resumeInfo.fileName, fmtSize(resumeInfo.sizeBytes), false);
     else hideChip();
@@ -367,7 +367,7 @@
     if (!a.source) return idx('source');
     if (!app.resume) return idx('resume');
     if (!a.work_auth || (a.work_auth === 'Other' && !a.work_auth_other)) return idx('auth');
-    if (a.ack_application_process !== 'true') return idx('ack');
+    if (a.agreed_samples_required !== 'true') return idx('ack');
     return idx('sample');
   }
 

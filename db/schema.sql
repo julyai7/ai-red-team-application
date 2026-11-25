@@ -61,8 +61,14 @@ create table if not exists red_team.sessions (
 );
 create index if not exists sessions_application_idx on red_team.sessions (application_id);
 
+-- Renamed question keys (ack_application_process, ack_sample_steps -> clearer names).
+update red_team.answers set question_key = 'agreed_samples_required' where question_key = 'ack_application_process';
+update red_team.answers set question_key = 'read_sample_steps' where question_key = 'ack_sample_steps';
+
 -- One row per application with the answers as columns. Easiest table to browse in Postico.
-create or replace view red_team.application_overview as
+-- Dropped and recreated so column changes apply (create or replace can't rename columns).
+drop view if exists red_team.application_overview;
+create view red_team.application_overview as
 select
   a.id,
   a.email,
@@ -73,8 +79,8 @@ select
   max(ans.answer_text) filter (where ans.question_key = 'source')                  as source,
   max(ans.answer_text) filter (where ans.question_key = 'work_auth')               as work_auth,
   max(ans.answer_text) filter (where ans.question_key = 'work_auth_other')         as work_auth_other,
-  max(ans.answer_text) filter (where ans.question_key = 'ack_application_process') as ack_application_process,
-  max(ans.answer_text) filter (where ans.question_key = 'ack_sample_steps')        as ack_sample_steps,
+  max(ans.answer_text) filter (where ans.question_key = 'agreed_samples_required') as agreed_samples_required,
+  max(ans.answer_text) filter (where ans.question_key = 'read_sample_steps')        as read_sample_steps,
   d.file_name     as resume_file_name,
   d.s3_bucket     as resume_s3_bucket,
   d.s3_key        as resume_s3_key,

@@ -80,7 +80,7 @@ test('full happy path: draft, autosave, resume, submit', async () => {
   assert.equal(r.status, 200);
   assert.equal(r.body.resume.fileName, 'cv.pdf');
 
-  await call(application, 'PATCH', { answers: { ack_application_process: 'true', ack_sample_steps: 'true' } });
+  await call(application, 'PATCH', { answers: { agreed_samples_required: 'true', read_sample_steps: 'true' } });
   const done = await call(submit, 'POST', {});
   assert.equal(done.status, 200, JSON.stringify(done.body));
   assert.equal(done.body.application.status, 'submitted');
