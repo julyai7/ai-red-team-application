@@ -47,7 +47,7 @@ Opening the `/exec` URL in a browser should return
 ## Notes
 
 - The last step saves the application with status **Sample pending** and opens
-  the July app (the Red Team Sample Submission page in `app.gojuly.ai/learning/…`) in a new tab for the three
+  the July app (`app.gojuly.ai/?invite_code=PGHFQGWA`, which unlocks the Red Team Sample Submission module) in a new tab for the three
   sample challenges. Nothing marks it complete automatically yet: that needs the
   main July app to report sample-module progress. Until then, check completion in
   the `#sample_submission_activities` Slack channel.
