@@ -3,11 +3,11 @@
 //  - New email: creates their draft, signs this browser in, saves the answers.
 //  - Email already has an application: emails a one-time link instead, so nobody can
 //    open someone else's draft by typing their address.
-import { query, tx } from '../lib/db.js';
-import { route, HttpError } from '../lib/http.js';
-import { checkAnswer, normalizeEmail } from '../lib/questions.js';
-import { sessionApplication, startSession } from '../lib/session.js';
-import { applicationState, saveAnswers, sendLoginLink } from '../lib/applications.js';
+import { query, tx } from './_lib/db.js';
+import { route, HttpError } from './_lib/http.js';
+import { checkAnswer, normalizeEmail } from './_lib/questions.js';
+import { sessionApplication, startSession } from './_lib/session.js';
+import { applicationState, saveAnswers, sendLoginLink } from './_lib/applications.js';
 
 export default route({
   async POST(req, res, body) {

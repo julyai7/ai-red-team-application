@@ -1,10 +1,10 @@
 // GET   /api/application            -> the signed-in applicant's application
 // PATCH /api/application { answers } -> autosave answers (drafts only)
-import { tx } from '../lib/db.js';
-import { route, HttpError } from '../lib/http.js';
-import { checkAnswer } from '../lib/questions.js';
-import { requireApplication, requireDraft } from '../lib/session.js';
-import { applicationState, saveAnswers } from '../lib/applications.js';
+import { tx } from './_lib/db.js';
+import { route, HttpError } from './_lib/http.js';
+import { checkAnswer } from './_lib/questions.js';
+import { requireApplication, requireDraft } from './_lib/session.js';
+import { applicationState, saveAnswers } from './_lib/applications.js';
 
 export default route({
   async GET(req) {

@@ -1,11 +1,11 @@
 // POST /api/resume  (body: the file itself; header X-File-Name: URI-encoded file name)
 // Saves the resume to S3 and records it, replacing any earlier resume.
 import { randomUUID } from 'node:crypto';
-import { tx } from '../lib/db.js';
-import { route, readRaw, HttpError } from '../lib/http.js';
-import { MAX_RESUME_BYTES, RESUME_EXT } from '../lib/questions.js';
-import { requireApplication, requireDraft } from '../lib/session.js';
-import { bucket, deleteObject, KEY_PREFIX, putObject } from '../lib/s3.js';
+import { tx } from './_lib/db.js';
+import { route, readRaw, HttpError } from './_lib/http.js';
+import { MAX_RESUME_BYTES, RESUME_EXT } from './_lib/questions.js';
+import { requireApplication, requireDraft } from './_lib/session.js';
+import { bucket, deleteObject, KEY_PREFIX, putObject } from './_lib/s3.js';
 
 const TOO_BIG = 'Resume must be ' + MAX_RESUME_BYTES / 1024 / 1024 + ' MB or smaller';
 

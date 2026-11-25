@@ -40,7 +40,7 @@ https://ai-red-team-application.vercel.app.
 
 Question keys: `first_name`, `last_name`, `phone`, `source`, `work_auth`,
 `work_auth_other`, `ack_application_process`, `ack_sample_steps`. The allowed
-values live in `lib/questions.js`; keep them in sync with `index.html`.
+values live in `api/_lib/questions.js`; keep them in sync with `index.html`.
 
 The schema lives beside the July app's tables in the same database but in its own
 schema, so Rails migrations and `db/schema.rb` don't see it.

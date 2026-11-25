@@ -1,9 +1,9 @@
 // POST /api/auth/link { email } -> emails a link to reopen the application, if one exists.
 // Always answers the same way so it can't be used to check who has applied.
-import { query } from '../../lib/db.js';
-import { route, HttpError } from '../../lib/http.js';
-import { normalizeEmail } from '../../lib/questions.js';
-import { sendLoginLink } from '../../lib/applications.js';
+import { query } from '../_lib/db.js';
+import { route, HttpError } from '../_lib/http.js';
+import { normalizeEmail } from '../_lib/questions.js';
+import { sendLoginLink } from '../_lib/applications.js';
 
 export default route({
   async POST(req, res, body) {

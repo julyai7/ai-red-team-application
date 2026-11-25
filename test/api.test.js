@@ -4,9 +4,9 @@ import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
-import { useTestDb } from '../lib/db.js';
-import { useFakeS3 } from '../lib/s3.js';
-import { useFakeEmail } from '../lib/email.js';
+import { useTestDb } from '../api/_lib/db.js';
+import { useFakeS3 } from '../api/_lib/s3.js';
+import { useFakeEmail } from '../api/_lib/email.js';
 
 import start from '../api/start.js';
 import application from '../api/application.js';

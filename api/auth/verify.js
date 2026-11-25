@@ -1,10 +1,10 @@
 // POST /api/auth/verify { token } -> exchanges an emailed link for a session.
 // The link opens the page, and the page posts the token here. Email scanners that
 // merely fetch the link don't run the page's script, so they can't use it up.
-import { tx } from '../../lib/db.js';
-import { route, HttpError } from '../../lib/http.js';
-import { hashToken, startSession } from '../../lib/session.js';
-import { applicationState } from '../../lib/applications.js';
+import { tx } from '../_lib/db.js';
+import { route, HttpError } from '../_lib/http.js';
+import { hashToken, startSession } from '../_lib/session.js';
+import { applicationState } from '../_lib/applications.js';
 
 export default route({
   async POST(req, res, body) {

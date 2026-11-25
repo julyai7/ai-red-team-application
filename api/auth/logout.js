@@ -1,6 +1,6 @@
 // POST /api/auth/logout -> signs this browser out ("Not you? Start over").
-import { route } from '../../lib/http.js';
-import { endSession } from '../../lib/session.js';
+import { route } from '../_lib/http.js';
+import { endSession } from '../_lib/session.js';
 
 export default route({
   async POST(req, res) {

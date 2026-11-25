@@ -1,9 +1,9 @@
 // POST /api/submit -> marks the draft as submitted once every required answer and the resume are in.
-import { tx } from '../lib/db.js';
-import { route, HttpError } from '../lib/http.js';
-import { missingForSubmit } from '../lib/questions.js';
-import { requireApplication } from '../lib/session.js';
-import { applicationState } from '../lib/applications.js';
+import { tx } from './_lib/db.js';
+import { route, HttpError } from './_lib/http.js';
+import { missingForSubmit } from './_lib/questions.js';
+import { requireApplication } from './_lib/session.js';
+import { applicationState } from './_lib/applications.js';
 
 export default route({
   async POST(req) {
