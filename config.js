@@ -3,5 +3,5 @@
 // mode and only keeps answers in the browser.
 window.APP_CONFIG = {
   apiBase: '/api',
-  maxResumeMB: 10,
+  maxResumeMB: 4,
 };

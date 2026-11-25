@@ -11,8 +11,7 @@ import { useFakeEmail } from '../lib/email.js';
 import start from '../api/start.js';
 import application from '../api/application.js';
 import submit from '../api/submit.js';
-import uploadUrl from '../api/resume/upload-url.js';
-import complete from '../api/resume/complete.js';
+import resume from '../api/resume.js';
 import link from '../api/auth/link.js';
 import verify from '../api/auth/verify.js';
 import logout from '../api/auth/logout.js';
@@ -31,8 +30,7 @@ before(async () => {
   useTestDb(pg);
   useFakeEmail(async (m) => { sent.push(m); });
   useFakeS3({
-    presignUpload: async (key) => `https://s3.example.com/${key}?signed`,
-    objectSize: async (key) => objects.get(key) ?? null,
+    putObject: async (key, body) => { objects.set(key, body.length); },
     deleteObject: async (key) => { objects.delete(key); },
   });
 });
@@ -60,12 +58,9 @@ function browser() {
 
 const contact = (email) => ({ email, firstName: 'Ada', lastName: 'Lovelace', phone: '+1 555 0100' });
 
-async function uploadResume(call, size = 2048) {
-  const u = await call(uploadUrl, 'POST', { fileName: 'cv.pdf', size });
-  assert.equal(u.status, 200, JSON.stringify(u.body));
-  objects.set(u.body.key, size);
-  return call(complete, 'POST', { key: u.body.key, fileName: 'cv.pdf' });
-}
+const sendFile = (call, name, size) =>
+  call(resume, 'POST', Buffer.alloc(size, 1), { 'x-file-name': encodeURIComponent(name), 'content-length': String(size) });
+const uploadResume = (call, size = 2048) => sendFile(call, 'cv.pdf', size);
 
 test('full happy path: draft, autosave, resume, submit', async () => {
   const call = browser();
@@ -181,31 +176,22 @@ test('rejects bad input, other sites, and bots', async () => {
   await call(start, 'POST', contact('val@example.com'));
   assert.equal((await call(application, 'PATCH', { answers: { source: 'Myspace' } })).status, 400);
   assert.equal((await call(application, 'PATCH', { answers: { is_admin: 'true' } })).status, 400);
-  assert.equal((await call(uploadUrl, 'POST', { fileName: 'cv.exe', size: 10 })).status, 400);
-  assert.equal((await call(uploadUrl, 'POST', { fileName: 'cv.pdf', size: 11 * 1024 * 1024 })).status, 400);
-  // Can't claim a file that belongs to someone else's application.
-  assert.equal((await call(complete, 'POST', { key: 'red-team-applications/00000000-0000-0000-0000-000000000000/resume/00000000-0000-0000-0000-000000000000.pdf' })).status, 400);
-  // Signed URL issued but the file never arrived.
-  const u = await call(uploadUrl, 'POST', { fileName: 'cv.pdf', size: 100 });
-  assert.equal((await call(complete, 'POST', { key: u.body.key, fileName: 'cv.pdf' })).status, 400);
-  // File bigger than allowed after upload is deleted.
-  objects.set(u.body.key, 20 * 1024 * 1024);
-  assert.equal((await call(complete, 'POST', { key: u.body.key, fileName: 'cv.pdf' })).status, 400);
-  assert.equal(objects.has(u.body.key), false);
+  assert.equal((await sendFile(call, 'cv.exe', 10)).status, 400);
+  assert.equal((await sendFile(call, 'cv.pdf', 5 * 1024 * 1024)).status, 413);
+  assert.equal((await sendFile(call, 'cv.pdf', 0)).status, 400);
+  // Signed-out browsers can't upload.
+  assert.equal((await sendFile(browser(), 'cv.pdf', 10)).status, 401);
 });
 
 test('uploading a new resume replaces the old one', async () => {
   const call = browser();
   await call(start, 'POST', contact('re@example.com'));
-  const a = await call(uploadUrl, 'POST', { fileName: 'a.pdf', size: 10 });
-  objects.set(a.body.key, 10);
-  await call(complete, 'POST', { key: a.body.key, fileName: 'a.pdf' });
-  const b = await call(uploadUrl, 'POST', { fileName: 'b.docx', size: 20 });
-  objects.set(b.body.key, 20);
-  await call(complete, 'POST', { key: b.body.key, fileName: 'b.docx' });
+  await sendFile(call, 'a.pdf', 10);
+  const firstKey = [...objects.keys()].pop();
+  await sendFile(call, 'b.docx', 20);
   const g = await call(application, 'GET');
   assert.equal(g.body.application.resume.fileName, 'b.docx');
-  assert.equal(objects.has(a.body.key), false);
+  assert.equal(objects.has(firstKey), false);
   const { rows } = await pg.query(`select count(*)::int as n from red_team.documents d join red_team.applications a on a.id = d.application_id where a.email = 're@example.com'`);
   assert.equal(rows[0].n, 1);
 });

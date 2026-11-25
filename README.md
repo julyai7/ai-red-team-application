@@ -19,8 +19,8 @@ https://ai-red-team-application.vercel.app.
 1. **Question 1** (name and email) creates a **draft** application and signs the
    browser in with an HttpOnly session cookie. From then on every answer is
    **autosaved** (the progress bar shows "Saved").
-2. The **resume** uploads straight from the browser to S3 through a short-lived
-   signed URL, so files never pass through Vercel (which caps request bodies at 4.5 MB).
+2. The **resume** (PDF, DOC or DOCX, up to 4 MB) is sent to `/api/resume`, which
+   stores it in S3. The 4 MB cap comes from Vercel's 4.5 MB request limit.
 3. **One application per person**: emails are unique. If someone enters an email
    that already has an application, nothing is shown or overwritten. Instead we email
    them a one-time link (expires in 30 minutes) that reopens their draft on any device.
@@ -79,16 +79,8 @@ Use a bucket in `us-east-2` (or set `S3_REGION`). Files go under
 }
 ```
 
-The bucket also needs a CORS rule so browsers can upload to it:
-
-```json
-[{
-  "AllowedOrigins": ["https://ai-red-team-application.vercel.app"],
-  "AllowedMethods": ["PUT"],
-  "AllowedHeaders": ["Content-Type"],
-  "MaxAgeSeconds": 3000
-}]
-```
+Uploads go through the API, so the bucket needs no CORS rule. It currently uses the
+July app's bucket (`julyai-prod`) and key.
 
 ### 3. Environment variables (Vercel → Project → Settings → Environment Variables)
 

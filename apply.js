@@ -490,19 +490,23 @@
     upload(file);
   }
 
-  // Uploads straight to S3 with a signed URL, then tells the API it's there.
+  // Sends the file to the API, which stores it in S3.
   function upload(file) {
     var seq = ++uploadSeq;
     var previous = resumeInfo;
     showChip(file.name, 'Uploading…', true);
     setSaveState('Saving…');
-    uploading = api('POST', '/resume/upload-url', { fileName: file.name, size: file.size })
-      .then(function (u) {
-        return fetch(u.url, { method: 'PUT', headers: u.headers, body: file }).then(function (r) {
-          if (!r.ok) throw new Error('Upload failed: ' + r.status);
-          return api('POST', '/resume/complete', { key: u.key, fileName: file.name });
-        });
-      })
+    uploading = fetch(API + '/resume', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name) },
+      body: file
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok) { var e = new Error(data.message || 'HTTP ' + res.status); e.status = res.status; throw e; }
+        return data;
+      });
+    })
       .then(function (r) {
         if (seq !== uploadSeq) return;
         uploading = null;
